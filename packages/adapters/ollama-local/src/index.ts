@@ -96,4 +96,12 @@ Core fields:
   semaphore-gated "heavy" regardless of the \`model\` field, for custom or
   future large tags. gemma3:27b and qwen3:32b are already treated as heavy
   by default.
+- skillKeys (string[] or comma/newline-separated string, optional):
+  skills-catalog keys (e.g. quality/qa-acceptance) whose SKILL.md content
+  is folded into this agent's system prompt on the first turn of a session,
+  as reference knowledge -- not via Paperclip's native listSkills/syncSkills
+  mechanism (that's for tool-using CLI adapters; this adapter has no
+  tool-use loop). The model is explicitly told to ignore any tool-call
+  instructions inside the skill text and use only the descriptive/checklist
+  content. Unresolved keys are logged as a warning, not a hard failure.
 `;

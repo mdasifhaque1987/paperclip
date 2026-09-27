@@ -57,6 +57,14 @@ export function getConfigSchema(): AdapterConfigSchema {
         group: "runPolicy",
       },
       {
+        key: "skillKeys",
+        label: "Reference skills",
+        type: "textarea",
+        default: "",
+        hint: "Comma or newline separated skills-catalog keys (e.g. quality/qa-acceptance) whose SKILL.md content is folded into this agent's system prompt as reference knowledge — not executed as tools, since this adapter has no tool-use loop. See this adapter's agentConfigurationDoc.",
+        group: "configuration",
+      },
+      {
         key: "isHeavy",
         label: "Force heavy-tier semaphore",
         type: "toggle",

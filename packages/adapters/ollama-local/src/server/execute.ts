@@ -14,6 +14,7 @@ import {
 
 import { isHeavyModel, withHeavySlot } from "./heavy-semaphore.js";
 import { parseOllamaChatOutput } from "./parse.js";
+import { buildSkillsReferenceSection, parseSkillKeys } from "./skills.js";
 import {
   deserializeSessionParams,
   sessionCodec,
@@ -127,12 +128,28 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const hasSession = priorMessages.length > 0;
 
   const userMessage = buildUserMessage(ctx, hasSession);
-  const messages: OllamaChatMessage[] = hasSession
-    ? [...priorMessages, { role: "user", content: userMessage }]
-    : [
-        { role: "system", content: CAPABILITY_BOUNDARY_NOTE },
-        { role: "user", content: userMessage },
-      ];
+
+  let messages: OllamaChatMessage[];
+  if (hasSession) {
+    messages = [...priorMessages, { role: "user", content: userMessage }];
+  } else {
+    const skillKeys = parseSkillKeys(config.skillKeys);
+    const { section: skillsSection, missing: missingSkills } =
+      buildSkillsReferenceSection(skillKeys);
+    if (missingSkills.length > 0) {
+      await ctx.onLog(
+        "stderr",
+        `[ollama_local] could not resolve configured skill key(s): ${missingSkills.join(", ")}\n`,
+      );
+    }
+    const systemContent = skillsSection
+      ? `${CAPABILITY_BOUNDARY_NOTE}\n\n${skillsSection}`
+      : CAPABILITY_BOUNDARY_NOTE;
+    messages = [
+      { role: "system", content: systemContent },
+      { role: "user", content: userMessage },
+    ];
+  }
   const outgoingMessages = truncateHistory(messages, maxHistoryMessages);
 
   const heavy = isHeavyModel(model, configuredHeavy);
