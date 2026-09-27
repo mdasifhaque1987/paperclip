@@ -136,6 +136,16 @@ import { getDisabledAdapterTypes } from "../services/adapter-plugin-store.js";
 import { processAdapter } from "./process/index.js";
 import { httpAdapter } from "./http/index.js";
 import {
+  execute as ollamaLocalExecute,
+  testEnvironment as ollamaLocalTestEnvironment,
+  sessionCodec as ollamaLocalSessionCodec,
+  getConfigSchema as getOllamaLocalConfigSchema,
+} from "@paperclipai/adapter-ollama-local/server";
+import {
+  agentConfigurationDoc as ollamaLocalAgentConfigurationDoc,
+  models as ollamaLocalModels,
+} from "@paperclipai/adapter-ollama-local";
+import {
   DEFAULT_OPENCODE_RUNNER_MODEL,
   PaperclipRunnerProviderProfileError,
   QUALIFIED_ACPX_RUNNER_MODELS,
@@ -839,6 +849,20 @@ const piLocalAdapter: ServerAdapterModule = {
   agentConfigurationDoc: piAgentConfigurationDoc,
 };
 
+const ollamaLocalAdapter: ServerAdapterModule = {
+  type: "ollama_local",
+  runtimeToolDelivery: "invocation_context",
+  execute: ollamaLocalExecute,
+  testEnvironment: ollamaLocalTestEnvironment,
+  sessionCodec: ollamaLocalSessionCodec,
+  models: ollamaLocalModels,
+  supportsLocalAgentJwt: false,
+  supportsInstructionsBundle: false,
+  requiresMaterializedRuntimeSkills: false,
+  getConfigSchema: getOllamaLocalConfigSchema,
+  agentConfigurationDoc: ollamaLocalAgentConfigurationDoc,
+};
+
 const adaptersByType = new Map<string, ServerAdapterModule>();
 
 // For builtin types that are overridden by an external adapter, we keep the
@@ -868,6 +892,7 @@ function registerBuiltInAdapters() {
     openclawGatewayAdapter,
     processAdapter,
     httpAdapter,
+    ollamaLocalAdapter,
   ]) {
     adaptersByType.set(adapter.type, adapter);
   }
