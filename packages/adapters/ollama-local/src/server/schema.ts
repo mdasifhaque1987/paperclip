@@ -36,8 +36,8 @@ export function getConfigSchema(): AdapterConfigSchema {
         key: "numCtx",
         label: "Context window (tokens)",
         type: "number",
-        default: 4096,
-        hint: "Passed as Ollama's options.num_ctx. Larger windows use more RAM per loaded model.",
+        default: 16384,
+        hint: "Passed as Ollama's options.num_ctx. Paperclip's own execution-contract prompt plus any injected reference skills can exceed 4k tokens before the actual task content, so the default is set well above that floor. Larger windows use more RAM per loaded model.",
         group: "advanced",
       },
       {

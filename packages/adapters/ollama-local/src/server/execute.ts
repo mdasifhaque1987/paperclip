@@ -26,6 +26,11 @@ import {
 const DEFAULT_HOST = "http://127.0.0.1:11434";
 const DEFAULT_TIMEOUT_SEC = 600;
 const DEFAULT_MAX_HISTORY = 20;
+// Paperclip's own execution-contract prompt template plus injected reference
+// skills can easily exceed 4k tokens on its own, before the actual task
+// content - a real run failed with "4856 tokens > 4096 n_ctx" using the
+// default. 16k has large headroom on this VM's RAM budget for every tier.
+const DEFAULT_NUM_CTX = 16384;
 
 const CAPABILITY_BOUNDARY_NOTE =
   "You are a text-only local assistant running via Ollama. You cannot execute " +
@@ -104,7 +109,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const model = asString(config.model, "").trim();
   const think = asBoolean(config.think, true);
   const temperature = asNumber(config.temperature, 0.7);
-  const numCtx = asNumber(config.numCtx, 4096);
+  const numCtx = asNumber(config.numCtx, DEFAULT_NUM_CTX);
   const timeoutSec = asNumber(config.timeoutSec, DEFAULT_TIMEOUT_SEC);
   const maxHistoryMessages = asNumber(config.maxHistoryMessages, DEFAULT_MAX_HISTORY);
   const configuredHeavy =
